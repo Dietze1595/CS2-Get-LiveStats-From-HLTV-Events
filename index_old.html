@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CS2 Live Overlay</title>
+  <style>
+    :root {
+      --scale: 1;
+      --panel: rgba(7, 10, 17, 0.84);
+      --panel2: rgba(18, 22, 34, 0.92);
+      --line: rgba(255,255,255,.14);
+      --text: #f6f7fb;
+      --muted: #a6aec0;
+      --accent: #ffcc3d;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: transparent;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+    body {
+      transform: scale(var(--scale));
+      transform-origin: top left;
+      width: calc(100% / var(--scale));
+    }
+    .wrap { width: 560px; padding: 10px; }
+    .match {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px 20px 14px;
+      background: linear-gradient(135deg, var(--panel2), var(--panel));
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .match::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255, 204, 61, .13), transparent 42%);
+      pointer-events: none;
+    }
+    .scoreline {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 22px;
+    }
+    .team {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 0;
+    }
+    .logoBox {
+      width: 86px;
+      height: 86px;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow: hidden;
+    }
+    .logoBox img {
+      width: 76px;
+      height: 76px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,.45));
+    }
+    .scorebox {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .score {
+      min-width: 62px;
+      text-align: center;
+      font-size: 52px;
+      line-height: 1;
+      font-weight: 1000;
+      color: var(--accent);
+      text-shadow: 0 8px 26px rgba(255, 204, 61, .18);
+    }
+    .sep { color: var(--muted); font-weight: 900; font-size: 34px; padding-bottom: 4px; }
+    .upcomingTime {
+      min-width: 140px;
+      text-align: center;
+      font-size: 44px;
+      line-height: 1;
+      font-weight: 1000;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.02em;
+      text-shadow: 0 6px 18px rgba(0,0,0,.4);
+    }
+    .compact .upcomingTime { font-size: 34px; min-width: 110px; }
+    .mapline {
+      position: relative;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .mapname { color: var(--text); }
+    .mapcount {
+      color: var(--accent);
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,204,61,.25);
+      background: rgba(255,204,61,.09);
+    }
+    .error { margin: 8px 10px 0; color: #ffd0d4; font-size: 12px; opacity: .85; }
+    .empty { border: 1px dashed var(--line); border-radius: 18px; padding: 22px; color: var(--muted); background: rgba(0,0,0,.25); }
+    .compact .wrap { width: 470px; padding: 6px; }
+    .compact .match { border-radius: 20px; padding: 12px 16px 10px; margin-bottom: 8px; }
+    .compact .scoreline { gap: 16px; }
+    .compact .logoBox { width: 68px; height: 68px; border-radius: 16px; }
+    .compact .logoBox img { width: 60px; height: 60px; }
+    .compact .score { font-size: 42px; min-width: 48px; }
+    .compact .sep { font-size: 28px; }
+    .compact .mapline { font-size: 14px; margin-top: 9px; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section id="matches"></section>
+    <div class="error" id="error"></div>
+  </main>
+<script>
+  const params = new URLSearchParams(location.search);
+  if (params.get('compact') === '1') document.body.classList.add('compact');
+  if (params.get('scale')) document.documentElement.style.setProperty('--scale', params.get('scale'));
+
+  const matchesEl = document.getElementById('matches');
+  const errorEl = document.getElementById('error');
+
+  function esc(value) { return String(value ?? '').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
+  function score(value) { return value === null || value === undefined ? '—' : esc(value); }
+  function logo(url) {
+    if (url) {
+      return `<div class="logoBox"><img src="${esc(url)}" onerror="this.parentNode.innerHTML=''"></div>`;
+    }
+    return `<div class="logoBox"></div>`;
+  }
+  function mapCount(m) {
+    const current = m.mapPosition || 1;
+    const max = m.maxMaps || 3;
+    return `${current}/${max}`;
+  }
+
+  function render(data) {
+    const matches = (data.matches || []).slice(0, 2);
+    if (!matches.length) {
+      matchesEl.innerHTML = '';
+      errorEl.textContent = '';
+      return;
+    }
+    errorEl.textContent = data.error ? `${data.source || 'source'}: ${data.error}` : '';
+    matchesEl.innerHTML = matches.map(m => {
+      if (m.status === 'UPCOMING') {
+        const timeText = m.startTime
+          ? new Date(m.startTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+          : '—';
+        return `
+        <article class="match upcoming">
+          <div class="scoreline">
+            <div class="team">${logo(m.teamALogo)}</div>
+            <div class="scorebox"><div class="upcomingTime">${esc(timeText)}</div></div>
+            <div class="team">${logo(m.teamBLogo)}</div>
+          </div>
+          <div class="mapline"><span class="mapcount">UPCOMING</span></div>
+        </article>`;
+      }
+      const series = (m.mapsWonA != null || m.mapsWonB != null)
+        ? `<span class="mapcount">${esc(m.mapsWonA ?? 0)}–${esc(m.mapsWonB ?? 0)}</span>`
+        : '';
+      return `
+      <article class="match">
+        <div class="scoreline">
+          <div class="team">${logo(m.teamALogo)}</div>
+          <div class="scorebox"><div class="score">${score(m.mapScoreA)}</div><div class="sep">:</div><div class="score">${score(m.mapScoreB)}</div></div>
+          <div class="team">${logo(m.teamBLogo)}</div>
+        </div>
+        <div class="mapline">${series}<span class="mapname">${esc(m.map || 'Map')}</span><span class="mapcount">Map ${esc(mapCount(m))}</span></div>
+      </article>`;
+    }).join('');
+  }
+
+  // Demo mode: ?demo=1 (one match) or ?demo=2 (two matches).
+  // Logos are looked up locally just like in live mode — drop g2.png, fut.png,
+  // spirit.png, 9z.png into public/logos/ to preview them.
+  const demoMode = params.get('demo');
+  const demoMatches = [
+    { teamALogo: '/logos/g2.png', teamBLogo: '/logos/fut.svg',
+      mapScoreA: 9, mapScoreB: 7, mapsWonA: 1, mapsWonB: 0,
+      map: 'Overpass', mapPosition: 2, maxMaps: 3, status: 'LIVE' },
+    { teamALogo: '/logos/spirit.png', teamBLogo: '/logos/9z.png',
+      mapScoreA: 13, mapScoreB: 11, mapsWonA: 0, mapsWonB: 0,
+      map: 'Mirage', mapPosition: 1, maxMaps: 3, status: 'LIVE' }
+  ];
+
+  async function load() {
+    if (demoMode) {
+      const n = demoMode === '2' ? 2 : 1;
+      render({
+        source: 'demo',
+        matches: demoMatches.slice(0, n),
+      });
+      return;
+    }
+    try {
+      const res = await fetch('/live.json?ts=' + Date.now(), { cache: 'no-store' });
+      render(await res.json());
+    } catch (err) {
+      errorEl.textContent = 'Overlay kann /live.json nicht laden: ' + err.message;
+    }
+  }
+  load();
+  if (!demoMode) setInterval(load, 5000);
+</script>
+</body>
+</html>

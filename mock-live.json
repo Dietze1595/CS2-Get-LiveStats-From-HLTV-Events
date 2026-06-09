@@ -1,0 +1,51 @@
+[
+  {
+    "matchId": "mock-1",
+    "event": "BLAST Open Cologne 2026 - Stage 2",
+    "status": "LIVE",
+    "teamAName": "Vitality",
+    "teamBName": "G2",
+    "teamAHltvId": 9565,
+    "teamBHltvId": 5995,
+    "mapScoreA": 9,
+    "mapScoreB": 7,
+    "mapsWonA": 1,
+    "mapsWonB": 0,
+    "map": "Overpass",
+    "mapPosition": 2,
+    "maxMaps": 3,
+    "source": "mock"
+  },
+  {
+    "matchId": "mock-2",
+    "event": "BLAST Open Cologne 2026 - Stage 3",
+    "status": "LIVE",
+    "teamAName": "Spirit",
+    "teamBName": "MOUZ",
+    "teamAHltvId": 7020,
+    "teamBHltvId": 4494,
+    "mapScoreA": 13,
+    "mapScoreB": 11,
+    "mapsWonA": 0,
+    "mapsWonB": 0,
+    "map": "Mirage",
+    "mapPosition": 1,
+    "maxMaps": 3,
+    "source": "mock"
+  },
+  {
+    "matchId": "mock-3-katowice",
+    "event": "IEM Katowice 2026",
+    "status": "LIVE",
+    "teamAName": "FaZe",
+    "teamBName": "NAVI",
+    "mapScoreA": 5,
+    "mapScoreB": 5,
+    "mapsWonA": 0,
+    "mapsWonB": 0,
+    "map": "Inferno",
+    "mapPosition": 1,
+    "maxMaps": 3,
+    "source": "mock"
+  }
+]

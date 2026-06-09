@@ -1,0 +1,181 @@
+{
+  "updatedAt": "2026-06-08T13:01:56.494Z",
+  "logoDir": "public/logos",
+  "extensionsTried": [
+    "svg",
+    "png",
+    "webp",
+    "jpg",
+    "jpeg"
+  ],
+  "teams": [
+    {
+      "name": "9z",
+      "slug": "9z",
+      "hltvId": 9996,
+      "expectedFile": "9z.<svg|png|webp|jpg>",
+      "currentFile": "9z.png"
+    },
+    {
+      "name": "Astralis",
+      "slug": "astralis",
+      "hltvId": 6665,
+      "expectedFile": "astralis.<svg|png|webp|jpg>",
+      "currentFile": "astralis.png"
+    },
+    {
+      "name": "Aurora",
+      "slug": "aurora",
+      "hltvId": 11861,
+      "expectedFile": "aurora.<svg|png|webp|jpg>",
+      "currentFile": "aurora.png"
+    },
+    {
+      "name": "B8",
+      "slug": "b8",
+      "hltvId": 11241,
+      "expectedFile": "b8.<svg|png|webp|jpg>",
+      "currentFile": "b8.png"
+    },
+    {
+      "name": "BetBoom",
+      "slug": "betboom",
+      "hltvId": 12394,
+      "expectedFile": "betboom.<svg|png|webp|jpg>",
+      "currentFile": "betboom.png"
+    },
+    {
+      "name": "BIG",
+      "slug": "big",
+      "hltvId": 7532,
+      "expectedFile": "big.<svg|png|webp|jpg>",
+      "currentFile": "big.png"
+    },
+    {
+      "name": "Falcons",
+      "slug": "falcons",
+      "hltvId": 11283,
+      "expectedFile": "falcons.<svg|png|webp|jpg>",
+      "currentFile": "falcons.svg"
+    },
+    {
+      "name": "FlyQuest",
+      "slug": "flyquest",
+      "hltvId": 12774,
+      "expectedFile": "flyquest.<svg|png|webp|jpg>",
+      "currentFile": null
+    },
+    {
+      "name": "FURIA",
+      "slug": "furia",
+      "hltvId": 8297,
+      "expectedFile": "furia.<svg|png|webp|jpg>",
+      "currentFile": "furia.svg"
+    },
+    {
+      "name": "FUT",
+      "slug": "fut",
+      "hltvId": 13286,
+      "expectedFile": "fut.<svg|png|webp|jpg>",
+      "currentFile": "fut.svg"
+    },
+    {
+      "name": "G2",
+      "slug": "g2",
+      "hltvId": 5995,
+      "expectedFile": "g2.<svg|png|webp|jpg>",
+      "currentFile": "g2.png"
+    },
+    {
+      "name": "GamerLegion",
+      "slug": "gamerlegion",
+      "hltvId": 9928,
+      "expectedFile": "gamerlegion.<svg|png|webp|jpg>",
+      "currentFile": null
+    },
+    {
+      "name": "Legacy",
+      "slug": "legacy",
+      "hltvId": 12468,
+      "expectedFile": "legacy.<svg|png|webp|jpg>",
+      "currentFile": "legacy.png"
+    },
+    {
+      "name": "M80",
+      "slug": "m80",
+      "hltvId": 12376,
+      "expectedFile": "m80.<svg|png|webp|jpg>",
+      "currentFile": "m80.png"
+    },
+    {
+      "name": "MIBR",
+      "slug": "mibr",
+      "hltvId": 9215,
+      "expectedFile": "mibr.<svg|png|webp|jpg>",
+      "currentFile": "mibr.png"
+    },
+    {
+      "name": "Monte",
+      "slug": "monte",
+      "hltvId": 11811,
+      "expectedFile": "monte.<svg|png|webp|jpg>",
+      "currentFile": "monte.png"
+    },
+    {
+      "name": "MOUZ",
+      "slug": "mouz",
+      "hltvId": 4494,
+      "expectedFile": "mouz.<svg|png|webp|jpg>",
+      "currentFile": "mouz.png"
+    },
+    {
+      "name": "Natus Vincere",
+      "slug": "natus-vincere",
+      "hltvId": 4608,
+      "expectedFile": "natus-vincere.<svg|png|webp|jpg>",
+      "currentFile": null
+    },
+    {
+      "name": "paiN",
+      "slug": "pain",
+      "hltvId": 4773,
+      "expectedFile": "pain.<svg|png|webp|jpg>",
+      "currentFile": "pain.png"
+    },
+    {
+      "name": "PARIVISION",
+      "slug": "parivision",
+      "hltvId": 12467,
+      "expectedFile": "parivision.<svg|png|webp|jpg>",
+      "currentFile": "parivision.png"
+    },
+    {
+      "name": "Spirit",
+      "slug": "spirit",
+      "hltvId": 7020,
+      "expectedFile": "spirit.<svg|png|webp|jpg>",
+      "currentFile": "spirit.png"
+    },
+    {
+      "name": "The MongolZ",
+      "slug": "the-mongolz",
+      "hltvId": 6248,
+      "expectedFile": "the-mongolz.<svg|png|webp|jpg>",
+      "currentFile": "the-mongolz.png"
+    },
+    {
+      "name": "TYLOO",
+      "slug": "tyloo",
+      "hltvId": 4863,
+      "expectedFile": "tyloo.<svg|png|webp|jpg>",
+      "currentFile": "tyloo.png"
+    },
+    {
+      "name": "Vitality",
+      "slug": "vitality",
+      "hltvId": 9565,
+      "expectedFile": "vitality.<svg|png|webp|jpg>",
+      "currentFile": "vitality.png"
+    }
+  ]
+}
