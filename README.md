@@ -18,6 +18,16 @@ At startup you interactively choose **which events** to track — no more hardco
 - **OBS overlay** — transparent background, shows up to 2 matches at once, scalable.
 - **Robustness** — Cloudflare bypass via got-scraping with a Playwright fallback, backoff on repeated failures, last-known-good cache during tech pauses / halftime.
 
+## For normal users: portable Windows release
+You do not need to install Node.js or run npm install.
+
+Download CS2Overlay-Windows-x64.zip from the release.
+Extract the zip.
+Double-click CS2Overlay.exe.
+Choose the HLTV events in the console.
+Add http://localhost:3000/ as an OBS Browser Source.
+The portable release bundles node.exe and uses the installed Microsoft Edge browser for Playwright by default.
+
 ## Requirements
 
 - **Node.js ≥ 20** (tested with 24)
