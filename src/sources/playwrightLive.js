@@ -19,15 +19,29 @@ import { chromium } from 'playwright';
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 const NAV_TIMEOUT_MS = 25000;
 const EVAL_TIMEOUT_MS = 5000;
+const DEFAULT_BROWSER_CHANNEL = process.platform === 'win32' ? 'msedge' : null;
 
 let browser = null;
 
 async function ensureBrowser() {
   if (browser) return;
-  browser = await chromium.launch({
+  const channel = process.env.PLAYWRIGHT_CHANNEL || DEFAULT_BROWSER_CHANNEL;
+  const launchOptions = {
     headless: true,
     args: ['--disable-blink-features=AutomationControlled'],
-  });
+  };
+  if (channel) launchOptions.channel = channel;
+
+  try {
+    browser = await chromium.launch(launchOptions);
+  } catch (e) {
+    if (!channel) throw e;
+    console.warn(`[playwright] could not launch browser channel "${channel}" (${e.message}); falling back to bundled Chromium`);
+    browser = await chromium.launch({
+      headless: true,
+      args: ['--disable-blink-features=AutomationControlled'],
+    });
+  }
 }
 
 // A FRESH context per use is mandatory: a reused context's scorebot session goes

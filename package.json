@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
+    "build:portable": "powershell -ExecutionPolicy Bypass -File scripts/build-portable.ps1",
     "test": "node --test"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
     "got-scraping": "^4.2.1",
-    "hltv": "^3.5.0",
     "playwright": "^1.60.0"
   },
   "engines": {

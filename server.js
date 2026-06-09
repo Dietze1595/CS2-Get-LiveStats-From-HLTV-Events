@@ -1,8 +1,7 @@
 // server.js
 import http from 'node:http';
-import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { resolve, dirname, extname, normalize as normPath } from 'node:path';
+import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { loadTeams } from './src/logos.js';
@@ -11,6 +10,8 @@ import { resolveSelectedEventIds } from './src/events.js';
 import { mapToOverlay } from './src/mapper.js';
 import { fetchLive } from './src/fetcher.js';
 import { selectDisplayMatches } from './src/display.js';
+import { safeResolve, serveFile } from './src/staticFiles.js';
+import { shutdown as shutdownScraper } from './src/sources/hltvScraper.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 3000);
@@ -52,38 +53,6 @@ async function pollOnce() {
   console.log(`[poll] source=${source} ok=true raw=${matches.length} filtered=${filtered.length} live=${live.length} upcoming=${upcoming.length} shown=${display.length} elapsed=${elapsed}ms`);
 }
 
-// Mime + safe static file serving from project root for index.html and logos.
-const MIME = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'application/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.svg': 'image/svg+xml',
-  '.webp': 'image/webp',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-};
-
-function safeJoin(base, sub) {
-  const target = normPath(resolve(base, '.' + sub));
-  if (!target.startsWith(base)) return null;
-  return target;
-}
-
-async function serveFile(res, absPath, extraHeaders = {}) {
-  try {
-    const data = await readFile(absPath);
-    res.writeHead(200, {
-      'Content-Type': MIME[extname(absPath).toLowerCase()] || 'application/octet-stream',
-      ...extraHeaders,
-    });
-    res.end(data);
-  } catch {
-    res.writeHead(404); res.end('404');
-  }
-}
-
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
@@ -111,7 +80,7 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname.startsWith('/logos/')) {
     const sub = pathname.slice('/logos/'.length);
-    const target = safeJoin(resolve(__dirname, 'logos'), '/' + sub);
+    const target = safeResolve(resolve(__dirname, 'logos'), '/' + sub);
     if (!target || !existsSync(target)) { res.writeHead(404); res.end('404'); return; }
     return serveFile(res, target);
   }
@@ -159,8 +128,7 @@ async function shutdown(signal) {
   shuttingDown = true;
   console.log(`[server] ${signal} received, shutting down…`);
   try {
-    const { __internals } = await import('./src/sources/hltvScraper.js');
-    await __internals.playwrightLive.shutdown();
+    await shutdownScraper();
   } catch (e) {
     console.warn(`[server] shutdown error: ${e.message}`);
   }

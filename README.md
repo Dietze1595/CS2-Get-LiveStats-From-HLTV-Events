@@ -5,9 +5,10 @@ A lightweight live overlay for Counter-Strike 2 matches, designed as a **browser
 At startup you interactively choose **which events** to track — no more hardcoded tournament.
 
 ## Screenshots
+![https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/LiveMatches.png](https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/LiveMatches.png)
+![https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/scheduled.png](https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/scheduled.png)
+![https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/Events.png](https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/Events.png)
 
-<!-- Add screenshots here -->
-_(coming soon)_
 
 ## Features
 
@@ -16,6 +17,16 @@ _(coming soon)_
 - **Upcoming matches** — fills empty cards with the next scheduled match (including start time).
 - **OBS overlay** — transparent background, shows up to 2 matches at once, scalable.
 - **Robustness** — Cloudflare bypass via got-scraping with a Playwright fallback, backoff on repeated failures, last-known-good cache during tech pauses / halftime.
+
+## For normal users: portable Windows release
+You do not need to install Node.js or run npm install.
+
+Download CS2Overlay-Windows-x64.zip from the release.
+Extract the zip.
+Double-click CS2Overlay.exe.
+Choose the HLTV events in the console.
+Add http://localhost:3000/ as an OBS Browser Source.
+The portable release bundles node.exe and uses the installed Microsoft Edge browser for Playwright by default.
 
 ## Requirements
 

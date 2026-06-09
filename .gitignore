@@ -1,3 +1,6 @@
 node_modules/
+dist/
+tools/CS2Overlay.Launcher/bin/
+tools/CS2Overlay.Launcher/obj/
 *.log
 .DS_Store

@@ -211,20 +211,9 @@ export async function fetchLive({ selectedEventIds = null } = {}) {
   // Resolve any missing event names so upcoming matches can be filtered too.
   await resolveEventNames(baseMatches);
 
-  // Only matches belonging to a selected event get the expensive Playwright
-  // treatment for live round-by-round scores. Every other match is dropped by
-  // the server's event filter anyway, so we do NOT fetch its detail page — that
-  // just wastes requests and produces Cloudflare 403 log spam for matches nobody
-  // sees. We still return them as bare base data so the server's "events seen"
-  // diagnostic log keeps working.
-  const liveAll = baseMatches.filter((m) => m.status === 'LIVE');
-  const upcoming = baseMatches.filter((m) => m.status === 'UPCOMING');
-
-  // Only matches in the selected event set get the expensive Playwright
-  // enrichment. selectedEventIds is null only when no filter is wanted (all
-  // live matches enriched) — the server always passes a concrete Set in real mode.
-  const liveToEnrich = liveAll.filter((m) => matchesSelection(m, selectedEventIds));
-  const others = liveAll.filter((m) => !matchesSelection(m, selectedEventIds));
+  const selectedMatches = baseMatches.filter((m) => matchesSelection(m, selectedEventIds));
+  const liveToEnrich = selectedMatches.filter((m) => m.status === 'LIVE');
+  const upcoming = selectedMatches.filter((m) => m.status === 'UPCOMING');
 
   const enriched = await playwrightLive.enrich(liveToEnrich).catch((e) => {
     console.warn(`[hltv-scraper] playwright enrich batch failed: ${e.message}`);
@@ -233,9 +222,8 @@ export async function fetchLive({ selectedEventIds = null } = {}) {
 
   return [
     ...enriched,
-    ...others,   // not displayed — no detail fetch, server filters them out
-    ...upcoming, // static, no enrichment needed
+    ...upcoming,
   ];
 }
 
-export const __internals = { playwrightLive }; // for server.js shutdown
+export const shutdown = playwrightLive.shutdown;
