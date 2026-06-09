@@ -27,6 +27,7 @@ Double-click CS2Overlay.exe.
 Choose the HLTV events in the console.
 Add http://localhost:3000/ as an OBS Browser Source.
 The portable release bundles node.exe and uses the installed Microsoft Edge browser for Playwright by default.
+Team logos are included in app/logos inside the extracted portable folder. To add more logos, copy the image into app/logos and add an entry in app/logos/teams.json.
 
 ## Requirements
 

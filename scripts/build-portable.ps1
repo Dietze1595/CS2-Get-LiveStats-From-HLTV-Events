@@ -78,6 +78,8 @@ Start:
 Notes:
   - Node.js is bundled in runtime\node.exe.
   - The launcher uses Microsoft Edge for Playwright by default.
+  - Team logos are bundled in app\logos.
+  - To add a logo, copy the image into app\logos and add it to app\logos\teams.json.
   - To reuse the previous selection, run:
       CS2Overlay.exe --lastEvent
   - To skip the prompt, set EVENT_IDS before starting.
