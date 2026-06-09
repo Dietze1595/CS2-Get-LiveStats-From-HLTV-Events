@@ -5,9 +5,10 @@ A lightweight live overlay for Counter-Strike 2 matches, designed as a **browser
 At startup you interactively choose **which events** to track — no more hardcoded tournament.
 
 ## Screenshots
+![https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/LiveMatches.png](https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/LiveMatches.png)
+![https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/scheduled.png](https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/scheduled.png)
+![https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/Events.png](https://github.com/Dietze1595/CS2-Get-LiveStats-From-HLTV-Events/blob/main/images/Events.png)
 
-<!-- Add screenshots here -->
-_(coming soon)_
 
 ## Features
 
