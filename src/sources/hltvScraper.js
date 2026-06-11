@@ -199,6 +199,20 @@ export async function fetchEventList() {
   return baseMatches;
 }
 
+export function mergeEnrichedMatchesInSourceOrder(selectedMatches, enrichedLive) {
+  const enrichedById = new Map(
+    enrichedLive
+      .filter((match) => match.matchId != null)
+      .map((match) => [match.matchId, match])
+  );
+
+  return selectedMatches.map((match) =>
+    match.matchId != null && enrichedById.has(match.matchId)
+      ? enrichedById.get(match.matchId)
+      : match
+  );
+}
+
 export async function fetchLive({ selectedEventIds = null } = {}) {
   const indexHtml = await fetchIndexHtml();
   const baseMatches = parseIndex(indexHtml);
@@ -213,17 +227,13 @@ export async function fetchLive({ selectedEventIds = null } = {}) {
 
   const selectedMatches = baseMatches.filter((m) => matchesSelection(m, selectedEventIds));
   const liveToEnrich = selectedMatches.filter((m) => m.status === 'LIVE');
-  const upcoming = selectedMatches.filter((m) => m.status === 'UPCOMING');
 
   const enriched = await playwrightLive.enrich(liveToEnrich).catch((e) => {
     console.warn(`[hltv-scraper] playwright enrich batch failed: ${e.message}`);
     return liveToEnrich;
   });
 
-  return [
-    ...enriched,
-    ...upcoming,
-  ];
+  return mergeEnrichedMatchesInSourceOrder(selectedMatches, enriched);
 }
 
 export const shutdown = playwrightLive.shutdown;

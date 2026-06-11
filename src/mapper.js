@@ -20,6 +20,9 @@ export function mapToOverlay(normalized, sourceLabel) {
       status: m.status ?? 'LIVE',
       // Unix ms epoch; only set for UPCOMING matches.
       startTime: m.startTime ?? null,
+      teamASide: m.teamASide ?? null,
+      teamBSide: m.teamBSide ?? null,
+      streamSlot: m.streamSlot ?? null,
     })),
   };
 }

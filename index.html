@@ -13,6 +13,7 @@
       --text: #f6f7fb;
       --muted: #a6aec0;
       --accent: #ffcc3d;
+      --score-ct: #57a9ff;
       --live: #4ade80;
     }
     * { box-sizing: border-box; }
@@ -23,11 +24,6 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       overflow: hidden;
-    }
-    body {
-      transform: scale(var(--scale));
-      transform-origin: top left;
-      width: calc(100% / var(--scale));
     }
     .wrap { width: 560px; padding: 10px; }
     .match {
@@ -62,31 +58,24 @@
     }
     .team.left { justify-content: flex-end; }
     .team.right { justify-content: flex-start; }
-    .seriesBadge {
-      width: 30px;
-      height: 30px;
+    /* One box per map a team must win (BO3 → 2, BO5 → 3). Filled = map won. */
+    .seriesBoxes {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
+      flex-direction: column;
+      gap: 6px;
       flex: 0 0 auto;
-      border-radius: 999px;
-      color: var(--accent);
-      border: 1px solid rgba(255,204,61,.30);
-      background: radial-gradient(circle at 50% 30%, rgba(255,204,61,.22), rgba(255,204,61,.08));
-      box-shadow: 0 8px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.12);
-      font-size: 13px;
-      line-height: 1;
-      font-weight: 1000;
-      letter-spacing: -.02em;
-      text-shadow: 0 0 12px rgba(255,204,61,.28);
     }
-    .seriesBadge .star {
-      font-size: 11px;
-      transform: translateY(-.5px);
+    .seriesBox {
+      width: 14px;
+      height: 14px;
+      border-radius: 5px;
+      border: 1px solid rgba(255,204,61,.40);
+      background: rgba(255,204,61,.06);
     }
-	.seriesBadge.placeholder {
-      visibility: hidden;
+    .seriesBox.won {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(255,204,61,.5), inset 0 1px 0 rgba(255,255,255,.25);
     }
     .logoBox {
       width: 86px;
@@ -119,6 +108,10 @@
       color: var(--accent);
       text-shadow: 0 8px 26px rgba(255, 204, 61, .18);
     }
+    .score.ct {
+      color: var(--score-ct);
+      text-shadow: 0 8px 26px rgba(87, 169, 255, .24);
+    }
     .sep { color: var(--muted); font-weight: 900; font-size: 34px; padding-bottom: 4px; }
     .upcomingTime {
       min-width: 140px;
@@ -132,6 +125,15 @@
       text-shadow: 0 6px 18px rgba(0,0,0,.4);
     }
     .compact .upcomingTime { font-size: 34px; min-width: 110px; }
+    .upcomingTime .timeUnit {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-left: 8px;
+      letter-spacing: 0;
+      text-shadow: none;
+    }
+    .compact .upcomingTime .timeUnit { font-size: 15px; margin-left: 6px; }
     .mapline {
       position: relative;
       margin-top: 12px;
@@ -168,6 +170,33 @@
       position: relative;
       white-space: nowrap;
     }
+    .mapMeta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mapScore {
+      font-size: 16px;
+      margin-left: 8px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .03em;
+      color: var(--muted);
+      opacity: .55;
+    }
+    .mapItem.doneA .mapScore, .mapItem.doneB .mapScore {
+      opacity: 1;
+      color: var(--text);
+    }
+    .mapPickLogo {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      object-fit: contain;
+      background: rgba(255,255,255,.06);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.08);
+      flex: 0 0 auto;
+    }
     .mapItem.doneA, .mapItem.doneB { color: var(--text); }
     .mapItem.live {
       color: var(--live);
@@ -182,8 +211,8 @@
     .compact .logoBox { width: 68px; height: 68px; border-radius: 16px; }
     .compact .logoBox img { width: 60px; height: 60px; }
     .compact .team { gap: 7px; }
-    .compact .seriesBadge { width: 25px; height: 25px; font-size: 11px; }
-    .compact .seriesBadge .star { font-size: 9px; }
+    .compact .seriesBoxes { gap: 5px; }
+    .compact .seriesBox { width: 11px; height: 11px; border-radius: 4px; }
     .compact .score { font-size: 42px; min-width: 48px; }
     .compact .sep { font-size: 28px; }
     .compact .mapline { font-size: 14px; margin-top: 9px; }
@@ -202,6 +231,10 @@
   const matchesEl = document.getElementById('matches');
   const errorEl = document.getElementById('error');
 
+  function scoreSideClass(side) {
+    return String(side || '').toUpperCase() === 'CT' ? 'ct' : '';
+  }
+
   function esc(value) { return String(value ?? '').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
   function score(value) { return value === null || value === undefined ? '—' : esc(value); }
   function logo(url) {
@@ -210,24 +243,45 @@
     }
     return `<div class="logoBox"></div>`;
   }
-  function seriesBadge(value) {
-    const isWon = Number(value) === 1;
-    return `<span class="seriesBadge ${isWon ? '' : 'placeholder'}" title="${isWon ? 'Map gewonnen' : ''}">
-      ${isWon ? '<span class="star">★</span>1' : ''}
-    </span>`;
+  // One box per map a team needs to win the series (BO3 → 2, BO5 → 3, BO1 → 1).
+  // The first `mapsWon` boxes are filled.
+  function seriesBoxes(mapsWon, maxMaps) {
+    const needed = Math.max(1, Math.ceil((Number(maxMaps) || 3) / 2));
+    const won = Number(mapsWon) || 0;
+    const boxes = Array.from({ length: needed }, (_, i) =>
+      `<span class="seriesBox ${i < won ? 'won' : ''}"></span>`
+    ).join('');
+    return `<span class="seriesBoxes">${boxes}</span>`;
   }
-  function teamLogo(url, mapsWon, side) {
-    const badge = seriesBadge(mapsWon);
+  function teamLogo(url, mapsWon, maxMaps, side) {
+    const badge = seriesBoxes(mapsWon, maxMaps);
     const mark = side === 'left'
       ? `${logo(url)}${badge}`
       : `${badge}${logo(url)}`;
     return `<div class="team ${side}">${mark}</div>`;
   }
+  function mapPickLogo(map, match) {
+    const pickedBy = String(map?.pickedBy || '').toUpperCase();
+    const url = pickedBy === 'A'
+      ? match.teamALogo
+      : pickedBy === 'B'
+        ? match.teamBLogo
+        : null;
+    return url
+      ? `<img class="mapPickLogo" src="${esc(url)}" alt="" loading="lazy" onerror="this.remove()">`
+      : '';
+  }
   function mapList(m) {
     const maps = Array.isArray(m.maps) ? m.maps : [];
     if (maps.length) {
       const items = maps
-        .map(mp => `<span class="mapItem ${esc(mp.state || 'upcoming')}">${esc(mp.name || '?')}</span>`)
+        .map(mp => {
+          const isDone = mp.state === 'doneA' || mp.state === 'doneB';
+          const scoreHtml = isDone && mp.scoreA != null && mp.scoreB != null
+            ? `<span class="mapScore">${esc(mp.scoreA)}:${esc(mp.scoreB)}</span>`
+            : '';
+          return `<span class="mapItem ${esc(mp.state || 'upcoming')}"><span class="mapMeta">${mapPickLogo(mp, m)}<span>${esc(mp.name || '?')}</span>${scoreHtml}</span></span>`;
+        })
         .join('');
       return `<div class="maps">${items}</div>`;
     }
@@ -248,11 +302,12 @@
         const timeText = m.startTime
           ? new Date(m.startTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
           : '—';
+        const timeUnit = m.startTime ? '<span class="timeUnit">Uhr</span>' : '';
         return `
         <article class="match upcoming">
           <div class="scoreline">
             <div class="team left">${logo(m.teamALogo)}</div>
-            <div class="scorebox"><div class="upcomingTime">${esc(timeText)}</div></div>
+            <div class="scorebox"><div class="upcomingTime">${esc(timeText)}${timeUnit}</div></div>
             <div class="team right">${logo(m.teamBLogo)}</div>
           </div>
           <div class="mapline"><span class="mapcount">UPCOMING</span></div>
@@ -261,9 +316,9 @@
       return `
       <article class="match">
         <div class="scoreline">
-          ${teamLogo(m.teamALogo, m.mapsWonA, 'left')}
-          <div class="scorebox"><div class="score">${score(m.mapScoreA)}</div><div class="sep">:</div><div class="score">${score(m.mapScoreB)}</div></div>
-          ${teamLogo(m.teamBLogo, m.mapsWonB, 'right')}
+          ${teamLogo(m.teamALogo, m.mapsWonA, m.maxMaps, 'left')}
+          <div class="scorebox"><div class="score ${scoreSideClass(m.teamASide)}">${score(m.mapScoreA)}</div><div class="sep">:</div><div class="score ${scoreSideClass(m.teamBSide)}">${score(m.mapScoreB)}</div></div>
+          ${teamLogo(m.teamBLogo, m.mapsWonB, m.maxMaps, 'right')}
         </div>
         <div class="mapline">${mapList(m)}</div>
       </article>`;
@@ -277,12 +332,14 @@
   const demoMatches = [
     { teamALogo: '/logos/g2.png', teamBLogo: '/logos/fut.svg',
       mapScoreA: 9, mapScoreB: 7, mapsWonA: 1, mapsWonB: 0,
+      teamASide: 'CT', teamBSide: 'T',
       map: 'Overpass', mapPosition: 2, maxMaps: 3, status: 'LIVE',
-      maps: [{ name: 'Inferno', state: 'doneA' }, { name: 'Overpass', state: 'live' }, { name: 'Mirage', state: 'upcoming' }] },
+      maps: [{ name: 'Inferno', state: 'doneA', pickedBy: 'A', scoreA: 16, scoreB: 5 }, { name: 'Overpass', state: 'live', pickedBy: 'B' }, { name: 'Mirage', state: 'upcoming', pickedBy: null }] },
     { teamALogo: '/logos/spirit.png', teamBLogo: '/logos/9z.png',
       mapScoreA: 13, mapScoreB: 11, mapsWonA: 0, mapsWonB: 0,
+      teamASide: 'T', teamBSide: 'CT',
       map: 'Mirage', mapPosition: 1, maxMaps: 3, status: 'LIVE',
-      maps: [{ name: 'Mirage', state: 'live' }, { name: 'Nuke', state: 'upcoming' }, { name: 'Ancient', state: 'upcoming' }] }
+      maps: [{ name: 'Mirage', state: 'live', pickedBy: 'A' }, { name: 'Nuke', state: 'upcoming', pickedBy: 'B' }, { name: 'Ancient', state: 'upcoming', pickedBy: null }] }
   ];
 
   async function load() {

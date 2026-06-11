@@ -15,12 +15,15 @@ import { shutdown as shutdownScraper } from './src/sources/hltvScraper.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 3000);
-const POLL_MS = Number(process.env.POLL_INTERVAL_MS || 16000);
+const POLL_MS = Number(process.env.POLL_INTERVAL_MS || 8000);
 // How far ahead an upcoming match may be to fill an empty card, and how long
 // past its scheduled time it still counts as "next" (delayed start).
 const UPCOMING_WINDOW_MS = Number(process.env.UPCOMING_WINDOW_HOURS || 24) * 60 * 60_000;
 const UPCOMING_GRACE_MS = 20 * 60_000;
 let selectedEventIds = null; // resolved at startup before the poll loop begins
+// Persistent slot↔match memory so cards stay pinned to their stream slot across
+// polls (the top card holds its match for its whole lifetime, no swapping).
+const slotAssignments = new Map();
 
 loadTeams();
 
@@ -46,6 +49,7 @@ async function pollOnce() {
   const { live, upcoming, display } = selectDisplayMatches(filtered, Date.now(), {
     windowMs: UPCOMING_WINDOW_MS,
     graceMs: UPCOMING_GRACE_MS,
+    assignments: slotAssignments,
   });
   cache.payload = mapToOverlay(display, source);
   cache.fetchedAt = Date.now();
