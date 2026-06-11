@@ -132,8 +132,8 @@
       "name": "Natus Vincere",
       "slug": "natus-vincere",
       "hltvId": 4608,
-      "expectedFile": "natus-vincere.<svg|png|webp|jpg>",
-      "currentFile": null
+      "expectedFile": "navi.<svg|png|webp|jpg>",
+      "currentFile": "navi.png"
     },
     {
       "name": "paiN",
